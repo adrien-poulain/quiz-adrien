@@ -1,5 +1,4 @@
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -16,6 +15,10 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,7 +28,12 @@ import androidx.compose.ui.unit.sp
 import classes.Question
 
 @Composable
-fun QuestionScreen() {
+fun QuestionScreen(questions : List<Question>) {
+
+    var questionProgress by remember { mutableStateOf(0) }
+    var selectAnswer by remember { mutableStateOf(1) }
+    var finalScore by remember { mutableStateOf(0) }
+
     Column (
         modifier = Modifier.fillMaxWidth().fillMaxHeight(),
         verticalArrangement = Arrangement.Top,
@@ -38,35 +46,36 @@ fun QuestionScreen() {
                     modifier = Modifier.padding(10.dp)
                 ) {
                     Text(
-                        text = "Question 1",
+                        text = questions[questionProgress].label,
                         fontSize = 18.sp
                     )
                 }
             }
             Column {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    RadioButton(
-                        selected = false,
-                        onClick = { }
-                    )
-                    Text("Réponse 1")
-                }
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    RadioButton(
-                        selected = false,
-                        onClick = { },
-
+                questions[questionProgress].answers.forEach { answer ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(
+                            selected = selectAnswer == answer.id,
+                            onClick = { selectAnswer = answer.id }
                         )
-                    Text("Réponse 2")
+                        Text(answer.label)
+                    }
                 }
             }
         }
         Column {
-            Button(onClick = {}) {
+            Button(
+                onClick = {
+                    if (selectAnswer == questions[questionProgress].correctAnswerId) {
+                        finalScore = finalScore + 1
+                    }
+                    if (questionProgress < questions.size - 1) {
+                        questionProgress = questionProgress + 1
+                    }
+                }
+            ) {
                 Text("Suivant")
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowRight,
@@ -75,7 +84,7 @@ fun QuestionScreen() {
             }
         }
         LinearProgressIndicator(
-            progress = 0.1f,
+            progress = (questionProgress.toFloat() / questions.size.toFloat()),
             color = Color.Blue,
             modifier = Modifier
                 .height(10.dp)

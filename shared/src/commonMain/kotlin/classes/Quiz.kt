@@ -1,3 +1,5 @@
 package classes
 
-data class Quiz(var questions: List<Question>)
+data class Quiz(
+    var questions: List<Question>
+)
